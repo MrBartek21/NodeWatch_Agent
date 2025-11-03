@@ -19,18 +19,19 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build Docker image
+      id: build
       run: |
+        # Tworzymy tag z timestampem
         IMAGE_TAG=my-agent:ci-$(date +%s)
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
         docker build . -f Dockerfile -t $IMAGE_TAG
 
     - name: Test Docker container starts
       run: |
-        IMAGE_TAG=my-agent:ci-$(date +%s)
+        echo "Testing container $IMAGE_TAG"
         # Uruchom kontener w tle
         CONTAINER_ID=$(docker run -d $IMAGE_TAG)
-        # Poczekaj chwilę na start
         sleep 5
-        # Sprawdź czy kontener działa
         STATUS=$(docker inspect -f '{{.State.Running}}' $CONTAINER_ID)
         if [ "$STATUS" != "true" ]; then
           echo "Container failed to start"
@@ -38,6 +39,5 @@ jobs:
           exit 1
         fi
         echo "Container started successfully"
-        # Zatrzymaj i usuń kontener po teście
         docker stop $CONTAINER_ID
         docker rm $CONTAINER_ID
