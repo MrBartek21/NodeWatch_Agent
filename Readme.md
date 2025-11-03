@@ -1,8 +1,8 @@
 # 🧠 NodeWatch Agent
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/mrbartek21/nodewatch_agent?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
-[![Docker Image Size](https://img.shields.io/docker/image-size/mrbartek21/nodewatch_agent/amd64_v5?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
-[![Docker Version](https://img.shields.io/badge/version-amd64__v5-blue?style=for-the-badge)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
+[![Docker Image Size](https://img.shields.io/docker/image-size/mrbartek21/nodewatch_agent/amd64_v6?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
+[![Docker Version](https://img.shields.io/badge/version-amd64__v6-blue?style=for-the-badge)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
 [![Build Status](https://img.shields.io/github/actions/workflow/status/mrbartek21/nodewatch_agent/docker-image-ci.yml?style=for-the-badge&logo=github)](https://github.com/mrbartek21/nodewatch_agent/actions)
 
 ---
@@ -21,7 +21,7 @@ Agent automatycznie zbiera dane o stanie kontenerów, zasobach systemowych oraz 
 version: "3.9"
 services:
   agent:
-    image: mrbartek21/nodewatch_agent:amd64_v5
+    image: mrbartek21/nodewatch_agent:amd64_v6
     container_name: agent
     restart: unless-stopped
     network_mode: "host"
@@ -99,8 +99,8 @@ mrbartek21/nodewatch_agent:<arch>_v<wersja>
 
 
 Przykłady:  
-- `mrbartek21/nodewatch_agent:amd64_v5`  
-- `mrbartek21/nodewatch_agent:arm64_v5`  
+- `mrbartek21/nodewatch_agent:amd64_v6`  
+- `mrbartek21/nodewatch_agent:arm64_v6`  
 
 Aktualizację możesz wykonać jednym poleceniem:  
 ```bash
