@@ -1,13 +1,13 @@
-# 🧠 MasterManager Agent
+# 🧠 NodeWatch Agent
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/mrbartek21/mastermanager_agent?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/mastermanager_agent)
-[![Docker Image Size](https://img.shields.io/docker/image-size/mrbartek21/mastermanager_agent/amd64_v5?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/mastermanager_agent)
-[![Docker Version](https://img.shields.io/badge/version-amd64__v5-blue?style=for-the-badge)](https://hub.docker.com/r/mrbartek21/mastermanager_agent)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=github)](https://github.com/mrbartek21/mastermanager)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mrbartek21/nodewatch_agent?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)
+[![Docker Image Size](https://img.shields.io/docker/image-size/mrbartek21/nodewatch_agent/amd64_v5?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)
+[![Docker Version](https://img.shields.io/badge/version-amd64__v5-blue?style=for-the-badge)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=github)](https://github.com/mrbartek21/nodewatch_agent)
 
 ---
 
-**MasterManager Agent** to lekki kontener zaprojektowany do komunikacji z centralnym systemem **MasterManager**, umożliwiający monitorowanie, raportowanie oraz zdalne zarządzanie hostami (np. serwerami Docker) z poziomu panelu centralnego.
+**NodeWatch Agent** to lekki kontener zaprojektowany do komunikacji z centralnym systemem **NodeWatch**, umożliwiający monitorowanie, raportowanie oraz zdalne zarządzanie hostami (np. serwerami Docker) z poziomu panelu centralnego.
 
 Agent automatycznie zbiera dane o stanie kontenerów, zasobach systemowych oraz konfiguracjach hosta, a następnie przesyła je do centralnego API w regularnych odstępach czasu.
 
@@ -21,7 +21,7 @@ Agent automatycznie zbiera dane o stanie kontenerów, zasobach systemowych oraz 
 version: "3.9"
 services:
   agent:
-    image: mrbartek21/mastermanager_agent:amd64_v5
+    image: mrbartek21/nodewatch_agent:amd64_v5
     container_name: agent
     restart: unless-stopped
     network_mode: "host"
@@ -95,21 +95,21 @@ może zawierać lokalne pliki konfiguracyjne lub dane wspierające działanie ag
 
 Wersje obrazu publikowane są w formacie:  
 
-mrbartek21/mastermanager_agent:<arch>_v<wersja>
+mrbartek21/nodewatch_agent:<arch>_v<wersja>
 
 
 Przykłady:  
-- `mrbartek21/mastermanager_agent:amd64_v5`  
-- `mrbartek21/mastermanager_agent:arm64_v5`  
+- `mrbartek21/nodewatch_agent:amd64_v5`  
+- `mrbartek21/nodewatch_agent:arm64_v5`  
 
 Aktualizację możesz wykonać jednym poleceniem:  
 ```bash
 docker compose pull && docker compose up -d
 ```
 
-## 🧩 Integracja z systemem MasterManager
+## 🧩 Integracja z systemem NodeWatch
 
-Agent jest częścią ekosystemu **MasterManager**, który umożliwia:
+Agent jest częścią ekosystemu **NodeWatch**, który umożliwia:
 
 - Zarządzanie wieloma hostami z jednego miejsca
 - Monitorowanie statusów kontenerów i serwerów
@@ -131,5 +131,5 @@ Więcej informacji: [https://agent.pacynait.pl](https://agent.pacynait.pl)
 
 ## 🧾 Licencja
 
-Projekt **MasterManager Agent** jest dostępny na zasadach licencji **MIT**.  
+Projekt **NodeWatch Agent** jest dostępny na zasadach licencji **MIT**.  
 Możesz go dowolnie wykorzystywać, modyfikować i wdrażać w swoich systemach.
