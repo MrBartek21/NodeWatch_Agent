@@ -1,0 +1,43 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      run: |
+        IMAGE_TAG=my-agent:ci-$(date +%s)
+        docker build . -f Dockerfile -t $IMAGE_TAG
+
+    - name: Test Docker container starts
+      run: |
+        IMAGE_TAG=my-agent:ci-$(date +%s)
+        # Uruchom kontener w tle
+        CONTAINER_ID=$(docker run -d $IMAGE_TAG)
+        # Poczekaj chwilę na start
+        sleep 5
+        # Sprawdź czy kontener działa
+        STATUS=$(docker inspect -f '{{.State.Running}}' $CONTAINER_ID)
+        if [ "$STATUS" != "true" ]; then
+          echo "Container failed to start"
+          docker logs $CONTAINER_ID
+          exit 1
+        fi
+        echo "Container started successfully"
+        # Zatrzymaj i usuń kontener po teście
+        docker stop $CONTAINER_ID
+        docker rm $CONTAINER_ID
