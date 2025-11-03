@@ -3,7 +3,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/mrbartek21/nodewatch_agent?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
 [![Docker Image Size](https://img.shields.io/docker/image-size/mrbartek21/nodewatch_agent/amd64_v6?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
 [![Docker Version](https://img.shields.io/badge/version-amd64__v6-blue?style=for-the-badge)](https://hub.docker.com/r/mrbartek21/nodewatch_agent)  
-[![Build Status](https://img.shields.io/github/actions/workflow/status/mrbartek21/nodewatch_agent/docker-image-ci.yml?style=for-the-badge&logo=github)](https://github.com/mrbartek21/nodewatch_agent/actions)
+[![Build Status](https://github.com/mrbartek21/nodewatch_agent/actions/workflows/docker-image-ci.yml/badge.svg?style=for-the-badge&logo=github)](https://github.com/mrbartek21/nodewatch_agent/actions/workflows/docker-image-ci.yml)
+
 
 ---
 
