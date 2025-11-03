@@ -1,7 +1,14 @@
-import os, time, json, subprocess
-import requests, docker, psutil
+import os
+import time
+import json
+import subprocess
 from datetime import datetime
 from dotenv import load_dotenv
+import docker
+import psutil
+import socket
+import requests
+from flask import Flask, request, jsonify
 
 load_dotenv()
 
@@ -13,13 +20,11 @@ INTERVAL = int(os.getenv("UPDATE_INTERVAL", 10))
 HOST_TYPE = os.getenv("HOST_TYPE")
 
 client = docker.from_env()
+app = Flask(__name__)
 
-import socket
-import platform
-import subprocess
-import psutil
-import os
 
+
+# --- Funkcje pomocnicze ---
 def get_host_status():
     # CPU, RAM, dysk, uptime
     cpu = psutil.cpu_percent()
@@ -113,6 +118,42 @@ def get_all_containers():
         })
     return containers
 
+def get_network_hostname():
+    """Zwraca nazwę hosta w sieci lokalnej lub IP, jeśli nazwa niedostępna"""
+    try:
+        # Spróbuj pobrać nazwę hosta sieciowego
+        hostname = socket.gethostname()
+        fqdn = socket.getfqdn()  # pełna nazwa DNS
+        if fqdn and fqdn != "localhost":
+            return fqdn
+
+        # Spróbuj uzyskać IP z interfejsu
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except:
+        return "n/a"
+
+# --- Wysyłanie statusu do centralnego serwera ---
+def send_update():
+    data = {
+        "hostname": get_network_hostname(),  # hostname w sieci lokalnej
+        "agent_hostname": AGENT_HOSTNAME,    # stała nazwa agenta
+        "host_type": HOST_TYPE,    # game server/dev server/services
+        "type": NODE_TYPE,
+        "host_status": get_host_status(),
+        "containers": get_all_containers()
+    }
+    try:
+        res = requests.post(CENTRAL_URL, json=data, headers={"X-API-KEY": API_KEY}, timeout=5)
+        if res.status_code != 200:
+            print("Central update error:", res.text)
+    except Exception as e:
+        print("Send error:", e)
+
+
 
 def start_container(name):
     try:
@@ -141,55 +182,67 @@ def restart_container(name):
         print("Restart error:", e)
         return False
 
-def add_container(compose_file):
+def execute_docker_compose(compose_content):
     try:
-        subprocess.run(["docker-compose", "-f", compose_file, "up", "-d"], check=True)
+        temp_file = "/tmp/docker-compose-temp.yml"
+        with open(temp_file, "w") as f:
+            f.write(compose_content)
+        subprocess.run(["docker-compose", "-f", temp_file, "up", "-d"], check=True)
+        os.remove(temp_file)
         return True
     except Exception as e:
         print("Compose error:", e)
         return False
 
 
-import socket
+# --- API dla frontendu ---
+@app.route("/api/container_action", methods=["POST"])
+def api_container_action():
+    data = request.json
+    hostname = data.get("hostname")
+    container_name = data.get("container_name")
+    action = data.get("action")
+    if not container_name or not action:
+        return jsonify({"error": "Brak nazwy kontenera lub akcji"}), 400
 
+    result = False
+    if action == "start":
+        result = start_container(container_name)
+    elif action == "stop":
+        result = stop_container(container_name)
+    elif action == "restart":
+        result = restart_container(container_name)
+    else:
+        return jsonify({"error": "Nieznana akcja"}), 400
 
-def get_network_hostname():
-    """Zwraca nazwę hosta w sieci lokalnej lub IP, jeśli nazwa niedostępna"""
-    try:
-        # Spróbuj pobrać nazwę hosta sieciowego
-        hostname = socket.gethostname()
-        fqdn = socket.getfqdn()  # pełna nazwa DNS
-        if fqdn and fqdn != "localhost":
-            return fqdn
+    if result:
+        return jsonify({"message": f"Kontener {container_name} został {action}ed"})
+    else:
+        return jsonify({"error": f"Błąd podczas {action} kontenera {container_name}"}), 500
 
-        # Spróbuj uzyskać IP z interfejsu
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except:
-        return "n/a"
+@app.route("/api/compose_execute", methods=["POST"])
+def api_compose_execute():
+    data = request.json
+    hostname = data.get("hostname")
+    compose = data.get("compose")
+    if not compose:
+        return jsonify({"error": "Brak treści docker-compose"}), 400
 
+    result = execute_docker_compose(compose)
+    if result:
+        return jsonify({"message": "Docker Compose wykonany pomyślnie"})
+    else:
+        return jsonify({"error": "Błąd podczas wykonywania Docker Compose"}), 500
     
 
-def send_update():
-    data = {
-        "hostname": get_network_hostname(),  # hostname w sieci lokalnej
-        "agent_hostname": AGENT_HOSTNAME,    # stała nazwa agenta
-        "host_type": HOST_TYPE,    # game server/dev server/services
-        "type": NODE_TYPE,
-        "host_status": get_host_status(),
-        "containers": get_all_containers()
-    }
-    try:
-        res = requests.post(CENTRAL_URL, json=data, headers={"X-API-KEY": API_KEY}, timeout=5)
-        if res.status_code != 200:
-            print("Central update error:", res.text)
-    except Exception as e:
-        print("Send error:", e)
-
+# --- Uruchamianie agenta ---
 if __name__ == "__main__":
-    while True:
-        send_update()
-        time.sleep(INTERVAL)
+    from threading import Thread
+    # Wątek do wysyłania statusu
+    def status_loop():
+        while True:
+            send_update()
+            time.sleep(INTERVAL)
+    Thread(target=status_loop, daemon=True).start()
+    # Start Flask
+    app.run(host="0.0.0.0", port=5000)
