@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  agent:
+    build: .
+    container_name: agent
+    restart: unless-stopped
+    env_file:
+      - config.env
+    network_mode: "host"  # pozwala na dostęp do dockera hosta
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose:/app/docker-compose
